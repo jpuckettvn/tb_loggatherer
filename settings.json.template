@@ -1,0 +1,13 @@
+{
+   "baseDirDict": [
+      "gateway",
+      "toolpack_engine",
+      "tbuctwriter"
+   ],
+   "tmgIP": "[IP ADDRESS]",
+   "tmgSSHPort": 22,
+   "tmgUN": "[USERNAME]",
+   "tmgPW": "[PASSWORD]",
+   "remoteDir": "/lib/tb/toolpack/setup/12358/3.2/apps",
+   "slashDir": "\\"
+}

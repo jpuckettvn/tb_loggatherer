@@ -1,20 +1,23 @@
 import paramiko
+import json
 from copy import deepcopy
 import os
 
-########################################
-#### Modify to fit your environment ####
-########################################
-baseDirDict={'gateway':[],'toolpack_engine':[],'tbuctwriter':[]} #Add keys to include other log files.
-remoteDir='/root/test/joshua' #Play Directory
-
-tmgIP='' #Modify this string to your IP
-tmgSSHPort='' #Modify this string to your SSH Port
-tmgUN='' #Modify this to your Username
-tmgPW='' #Modify this to your SSH Password
-#remoteDir='/lib/tb/toolpack/setup/12358/3.2/apps' #Real Test
-slashDir='\\' #This should change to '/' in a linux machine and '\\' in a windows machine.
-
+def readSettings(file):
+    global selfCFG
+    global baseDirDict
+    baseDirDict=dict()
+    if not os.path.exists(file):
+        settingTemplate=open(file,'x')
+        settingTemplate.write(json.dumps({"baseDirDict":["gateway","toolpack_engine","tbuctwriter"], "tmgIP":"[IP ADDRESS]", "tmgSSHPort":22, "tmgUN":"[USERNAME]", "tmgPW":"[PASSWORD]", "remoteDir":"/lib/tb/toolpack/setup/12358/3.2/apps", "slashDir":"\\"}, indent=3))
+        print('Please modify the settings file that has just been created: '+file)
+        quit()
+    else:
+        with open('settings.json') as json_file:
+            selfCFG=json.load(json_file)
+        for i in selfCFG['baseDirDict']:
+            baseDirDict.update({i:[]})
+        print(selfCFG)
 
 
 def paramikoSetup(): #Setup SFTP/SSH Communication
@@ -23,8 +26,8 @@ def paramikoSetup(): #Setup SFTP/SSH Communication
     ssh = paramiko.SSHClient()
     ssh.load_system_host_keys() # Load SSH host keys.
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy()) # Add SSH host key automatically if needed.
-    sftpTrans=paramiko.Transport((tmgIP,tmgSSHPort))
-    sftpTrans.connect(username=tmgUN,password=tmgPW)
+    sftpTrans=paramiko.Transport((selfCFG['tmgIP'],selfCFG['tmgSSHPort']))
+    sftpTrans.connect(username=selfCFG['tmgUN'],password=selfCFG['tmgPW'])
     sftp = paramiko.SFTPClient.from_transport(sftpTrans)
 
 def makeFolders(folder):
@@ -33,7 +36,7 @@ def makeFolders(folder):
 
 def localDirList():
     global localDir
-    localDir=os.getcwd()+slashDir+'logfiles'+slashDir
+    localDir=os.getcwd()+selfCFG['slashDir']+'logfiles'+selfCFG['slashDir']
     #Prepare log directories
     makeFolders(localDir)
     for i in baseDirDict:
@@ -45,7 +48,7 @@ def localDirList():
     localLogWalk=os.walk(localDir, topdown=True)
     for i in localLogWalk:
         if(len(i[2])>0):
-            relativeDir=i[0].split(slashDir)
+            relativeDir=i[0].split(selfCFG['slashDir'])
             localLogList[relativeDir[-1]].append(i[2])
             localLogList[relativeDir[-1]]=localLogList[relativeDir[-1]][0]
  
@@ -54,7 +57,7 @@ def remoteDirList():
     global remoteLogList
     remoteLogList=deepcopy(baseDirDict)
     for i in baseDirDict:
-        sftp.chdir(path=remoteDir+'/'+i)
+        sftp.chdir(path=selfCFG['remoteDir']+'/'+i)
         relativeDir=i.split('/')
         if relativeDir[-1]=='tbuctwriter':
             templist=sftp.listdir(path='.')
@@ -78,12 +81,13 @@ def toGrabList():
 def getGrabbing():
     toGrabList()
     for i in grabLogList:
-        localPget=localDir+i+slashDir
-        remotePget=remoteDir+'/'+i+'/'
+        localPget=localDir+i+selfCFG['slashDir']
+        remotePget=selfCFG['remoteDir']+'/'+i+'/'
         for ii in grabLogList[i]:
             print('Downloading: '+i+'/'+ii)
             sftp.get(remotePget+ii,localPget+ii)
     sftpTrans.close()
 
 if __name__ == "__main__":
+    readSettings('settings.json')
     getGrabbing()
