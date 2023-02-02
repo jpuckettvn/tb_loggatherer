@@ -45,7 +45,7 @@ Currently there are 7 configuration settings and all fields are mandetory, below
         tbtelnetdump
         tbuctwriter
         toolpack_engine
-        toolpack_sys_manager```
+        toolpack_sys_manager
 
 1. **tmgIP** is a *string* of an ip address. The IP Address should be enclosed in quotation marks such as `"127.0.0.1"`
 
@@ -57,10 +57,6 @@ Currently there are 7 configuration settings and all fields are mandetory, below
 
 1. **remoteDir** is a *string* for the application directory of tbtoolpack, which should be enclosed in quotes.
    - *Note it can be found by enterering `tbsetup` on your device and printing the working directory with `pwd`*
-
-1. **slashDir** is a *string* for direction of the slashes on the local filesystem. There are only two possible values:
-   - `"\\"` for Windows or NT Machines, double slashes are needed to escape the escape character.
-   - `"/"` for Unix devices.
 
 ## EXAMPLE settings.json FILE
 ```
@@ -75,6 +71,5 @@ Currently there are 7 configuration settings and all fields are mandetory, below
    "tmgUN": "sftpusr",
    "tmgPW": "s3cUr1ty15m3",
    "remoteDir": "/lib/tb/toolpack/setup/12358/3.2/apps",
-   "slashDir": "\\"
 }
 ```
