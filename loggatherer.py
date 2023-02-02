@@ -2,6 +2,8 @@ import paramiko
 import json
 from copy import deepcopy
 import os
+from sys import platform
+
 
 def readSettings(file):
     global selfCFG
@@ -9,7 +11,7 @@ def readSettings(file):
     baseDirDict=dict()
     if not os.path.exists(file):
         settingTemplate=open(file,'x')
-        settingTemplate.write(json.dumps({"baseDirDict":["gateway","toolpack_engine","tbuctwriter"], "tmgIP":"[IP ADDRESS]", "tmgSSHPort":22, "tmgUN":"[USERNAME]", "tmgPW":"[PASSWORD]", "remoteDir":"/lib/tb/toolpack/setup/12358/3.2/apps", "slashDir":"\\"}, indent=3))
+        settingTemplate.write(json.dumps({"baseDirDict":["gateway","toolpack_engine","tbuctwriter"], "tmgIP":"[IP ADDRESS]", "tmgSSHPort":22, "tmgUN":"[USERNAME]", "tmgPW":"[PASSWORD]", "remoteDir":"/lib/tb/toolpack/setup/12358/3.2/apps"}, indent=3))
         print('Please modify the settings file that has just been created: '+file)
         quit()
     else:
@@ -17,7 +19,7 @@ def readSettings(file):
             selfCFG=json.load(json_file)
         for i in selfCFG['baseDirDict']:
             baseDirDict.update({i:[]})
-        print(selfCFG)
+    selfCFG['slashDir']='\\' if platform=='win32' else '/'
 
 
 def paramikoSetup(): #Setup SFTP/SSH Communication
